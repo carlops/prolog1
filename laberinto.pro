@@ -11,7 +11,7 @@ leer(PA,Nfil,Ncol):-
       
 readNum(Fd,N,Y):-  
 	get_code(Fd,C), 
-	(addChar(Fd,C,Y);alReves(Z,Y),write(Z),nl,charToNum(Z,0,N)). % cuando Y llega a la segunda parte del ; esta libre =S
+	(addChar(Fd,C,Y);alReves(Z,Y),write(Z),nl,charToNum(Z,0,N)),!. %N tendra el num pero por alguna razon sigue haciendo cosas y lo pierde.  
 
 % esto solo voltea la lista.
 alReves(L1,L2) :- alReves1(L1,L2,[]).

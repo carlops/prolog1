@@ -68,5 +68,53 @@ leerFila(Fd,PAa3,PAa2,F,Ca,Nc):-
 leerFila(_,PAa3,PAa2,_,_,_):-
 	PAa2=PAa3.
 
+punto(0,0). punto(1,0). punto(1,1).
+punto(1,2). punto(1,3). punto(1,4).
+punto(1,5). punto(1,6). punto(2,6).
+punto(3,6). punto(4,6). punto(5,6).
+punto(6,6). punto(7,6). punto(8,6).
+punto(8,7). punto(8,8). punto(9,8).
+punto(9,9).
 
+/*
+ * soluciones(Columna,Llegada).
+ *
+ * 	-> Columna es cantidad de columnas
+ *	<- Llegada es la lista de puntos abiertos, en la columna dada
+ *
+ */
+soluciones(N,L):-
+	N>0,
+	N1 is N-1,
+	findall(X, X = punto(_,N1),L).
 
+/*
+ * bfs(Finales,Movimientos,Solucion).
+ *
+ *	-> Finales, es la lista de los puntos abiertos finales
+ *	-> Movimientos, es la lista de caminos posibles, se lleva 
+ *	    en orden inverso, es decir, el punto mas reciente de primero
+ *	<- Solucion, es la lista con el camino que lleva a la solucion
+ *
+ */ 
+bfs(Problema,[[Estado|Estados]|_],Solucion) :- 
+	final(Problema,Estado),
+    reverse([Estado|Estados],Solucion).
+
+bfs(Problema,[Camino|Caminos],Solucion) :-
+    extender(Problema,Camino,Nuevos),
+    append(Caminos,Nuevos,Posibilidades),
+    bfs(Problema,Posibilidades,Solucion).
+
+extender(Problema,[punto(X,Y)|Camino],Caminos) :-
+    findall( [Proximo,punto(X,Y)|Camino], 
+    	   ( Y1 is Y-1,Y2 is Y+1,X1 is X-1,X2 is X+1,
+           ( (punto(X,Y1),Proximo=punto(X,Y1);punto(X,Y2),Proximo = punto(X,Y2);
+	      punto(X1,Y),Proximo=punto(X1,Y);punto(X2,Y),Proximo=punto(X2,Y))),
+	         \+ member(Proximo,[punto(X,Y)|Camino])
+           ),
+           Caminos
+         ),!.
+extender(_,_,[]).
+
+final(Problema,Estado):- member(Estado,Problema).

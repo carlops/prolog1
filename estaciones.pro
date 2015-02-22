@@ -7,16 +7,15 @@
 
 carril(brussel,charleroi).
 carril(brussel,haacht).
+carril(antwerpen,boom).
 carril(haacht,mechelen).
 carril(mechelen,berchem).
 carril(berchem,antwerpen).
 carril(brussel,boom).
-carril(boom,antwerpen).
 carril(antwerpen,turnhout).
 
 ciudad(X,L,N) :- 
 	bagof(Y,(carril(X,Y);carril(Y,X)),L),
-	%write(L),
 	length(L,N).
 
 ciudadPequena(X) :-
@@ -27,47 +26,55 @@ ciudadGrande(X) :-
 	ciudad(X,_,N),
 	N>2.
 
+
 buenaCiudad(X,N1) :-
 	ciudad(X,L,N),
-	N==2,
-	ciudadesGrandes(L,LG,Lr,0,N1),
-	ciudadesGrandes(Lr,LG2,_,0,N2),
-	N1=:=N2.
-%	write('trolololo'),
-%	write(LG),nl,
-%	write(LG2),nl,
-%	length(LG,N3),
-%	length(LG2,N4),
-	
-	%N3>1. %AQUI ESTA VOLVIENDO SIEMPRE CON LG d tamano 1 en vez de buscarlas todas y luego regresar.
-
-ciudadesGrandes(L,LG,Lr,Na,Nf):-
-	length(L,N),
-	N>1,
-	select(X,L,L1),
-	findall(X,ciudadGrande(X),LG),
-	Nf is Na+1. %LG tiene la lista de todas las ciudades grandes a las q X le llega directamente.
-
-ciudadesGrandes(L,LG,Na,Nf):-
-	length(L,N),
-	N>1,
-	member(X,L),
-	Na2 is Na + 1,
-	ciudadesGrandes(L,LG,Na2,Nf).
+	N==2, % X va a ser una ciudad pequena
+	ciudadGrande(C1),
+	ciudadGrande(C2),
+	C1 \== C2,
+	bfs(C1,[[X]],Camino1), length(Camino1,N1),
+	bfs(C2,[[X]],Camino2), length(Camino2,N2),
+	N1==N2. % el bfs va a encontrar el mas pequenio de primero.
+%	write(Camino1),nl,
+%	write(Camino2),nl,
+%	write(N1).
 
 estacion(X):-
-	buenaCiudad(X,N1),
-	%findall(Y,buenaCiudad(Y,N1),Bcs),
-	write(N1).
-%menorDistancia(Bcs).
+	buenaCiudad(X,N1),!.
 
 
-% N>0, % buenaCiudad(X). % intento del caso recursivo
+/*
+ * Esta implementacion de bfs, fue tomada de los ejemplos de la pagina del curso
+ *  y adaptada para el funcionamiento con el predicado carriles.
+ *
+ * bfs(Problema,Posibilidades,Solucion)
+ * -> Problema es el estado final al cual se debe llegar
+ * -> Posibilidades, es una lista de caminos por recorrer, los caminos
+ *    se mantienen en orden inverso, con el estado mas reciente de primero.
+ * <- Solucion es el camino que resuelve el problema
+ */
 
-% ciudadesGrandes(L,LG):-
-%	
+bfs(Problema,[[Estado|Estados]|_],Solucion) :- 
+	final(Problema,Estado),
+    reverse([Estado|Estados],Solucion).
 
-% ciudadesGrandes(X,[C|Cs],LCG):-
-%	ciudadesGrandes(X,Cs,LCG).
+bfs(Problema,[Camino|Caminos],Solucion) :-
+    extender(Problema,Camino,Nuevos),
+    append(Caminos,Nuevos,Posibilidades),
+    bfs(Problema,Posibilidades,Solucion).
 
+extender(Problema,[Estado|Camino],Caminos) :-
+    findall( [Proximo,Estado|Camino],
+           ( (carril(Proximo,Estado);carril(Estado,Proximo)), 
+	     (ciudadGrande(Proximo)-> Proximo == Problema),
+            % movimiento(Problema,Estado,Movimiento),
+  	    %     moverse(Problema,Estado,Movimiento,Proximo),
+  	     %    legal(Problema,Proximo),
+	         \+ member(Proximo,[Estado|Camino])
+           ),
+           Caminos
+         ),!.
+extender(_,_,[]).
 
+final(Problema,Estado):- Problema == Estado.

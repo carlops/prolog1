@@ -26,6 +26,7 @@ ciudadGrande(X) :-
 	ciudad(X,_,N),
 	N>2.
 
+
 buenaCiudad(X,N1) :-
 	ciudad(X,L,N),
 	N==2, % X va a ser una ciudad pequena
@@ -42,6 +43,17 @@ buenaCiudad(X,N1) :-
 estacion(X):-
 	buenaCiudad(X,N1),!.
 
+
+/*
+ * Esta implementacion de bfs, fue tomada de los ejemplos de la pagina del curso
+ *  y adaptada para el funcionamiento con el predicado carriles.
+ *
+ * bfs(Problema,Posibilidades,Solucion)
+ * -> Problema es el estado final al cual se debe llegar
+ * -> Posibilidades, es una lista de caminos por recorrer, los caminos
+ *    se mantienen en orden inverso, con el estado mas reciente de primero.
+ * <- Solucion es el camino que resuelve el problema
+ */
 
 bfs(Problema,[[Estado|Estados]|_],Solucion) :- 
 	final(Problema,Estado),

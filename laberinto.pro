@@ -1,12 +1,13 @@
+:-dynamic(punto/2).
 
 leer(PA,Nfil,Ncol):-
 	write('Nombre Archivo: '),
 	read(Archivo),
 	open(Archivo,read,Fd),
 	readNum(Fd,Ncol,[]),	
-	%write(Ncol),nl,
-	leerLaberinto(Fd,[],PA,0,Nfil,Ncol),
-	write(PA),
+	leerLaberinto(Fd,[],Pa,0,Nf,Ncol),
+	Nfil is Nf-1,
+	alReves(PA,Pa),
 	close(Fd).
       
 readNum(Fd,N,Y):-  
@@ -36,49 +37,43 @@ charToNum([],Na,N):-N=Na.
 
 %Nc ira disminuyendo, F empieza en 0 y Nf obtendra su valor al llegar a end_of_file o Nc=:=0
 leerLaberinto(Fd,PAa,PA,F,Nf,Nc):-
-	leerFila(Fd,PAa,PAa2,F,0,Nc),
+	get_code(Fd,C),
+	leerFila(Fd,PAa,PAa2,F,0,Nc,C),
 	F2 is F+1,
 	leerLaberinto(Fd,PAa2,PA,F2,Nf,Nc).
 
-leerLaberinto(_,PAa,PA,F,Nf,Nc):-
-	write('HOLA'),write(PAa),write(PA),nl,
+leerLaberinto(_,PAa,PA,F,Nf,_):-
 	Nf is F+1,
 	PA=PAa.
 
-leerFila(Fd,PAa3,PAa2,F,Ca,Nc):-
-	get_code(Fd,C),
+leerFila(Fd,PAa3,PAa2,F,Ca,Nc,C):-
+	C > 0,
 	Ca2 is Ca +1,
-	write('Here'),
 	Ca<Nc,
 	(
 	(C=:=35,
-	leerFila(Fd,PAa3,PAa2,F,Ca2,Nc)
+	get_code(Fd,C1),
+	leerFila(Fd,PAa3,PAa2,F,Ca2,Nc,C1)
 	)
 	;
 	(C=:=32,
-	leerFila(Fd,[(F,Ca)|PAa3],PAa2,F,Ca2,Nc)
+	asserta(punto(F,Ca)),
+	get_code(Fd,C1),
+	leerFila(Fd,[punto(Ca,F)|PAa3],PAa2,F,Ca2,Nc,C1)
 	)
-	;(C=:= -1
-	%finLaberinto(Fd,PAa,PA,F,Nf,Nc),
-	)
-	)
-	.
+	).
 
-leerFila(_,PAa3,PAa2,_,_,_):-
+leerFila(_,PAa3,PAa2,_,_,_,C):-
+	C > 0,
 	PAa2=PAa3.
 
-finLaberinto(_,PAa,PA,F,Nf,Nc):-
-	write('HOLA'),write(PAa),write(PA),nl,
-	Nf is F+1,
-	PA=PAa.
-
-punto(0,0). punto(1,0). punto(1,1).
-punto(1,2). punto(1,3). punto(1,4).
-punto(1,5). punto(1,6). punto(2,6).
-punto(3,6). punto(4,6). punto(5,6).
-punto(6,6). punto(7,6). punto(8,6).
-punto(8,7). punto(8,8). punto(9,8).
-punto(9,9).
+%punto(0,0). punto(1,0). punto(1,1).
+%punto(1,2). punto(1,3). punto(1,4).
+%punto(1,5). punto(1,6). punto(2,6).
+%punto(3,6). punto(4,6). punto(5,6).
+%punto(6,6). punto(7,6). punto(8,6).
+%punto(8,7). punto(8,8). punto(9,8).
+%punto(9,9).
 
 /*
  * soluciones(Columna,Llegada).
@@ -121,4 +116,4 @@ extender(Problema,[punto(X,Y)|Camino],Caminos) :-
          ),!.
 extender(_,_,[]).
 
-final(Problema,Estado):- member(Estado,Problema)jj.
+final(Problema,Estado):- member(Estado,Problema).

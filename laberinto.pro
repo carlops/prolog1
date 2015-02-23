@@ -28,7 +28,6 @@ addChar(Fd,C,Y,N):-
 	alReves(Z,Y),
 	charToNum(Z,0,N).
 
-
 % convertir lista de chars a un num
 charToNum([C|Cs],Na,N):-
 	N1 is (Na*10)+C,
@@ -37,9 +36,9 @@ charToNum([],Na,N):-N=Na.
 
 %Nc ira disminuyendo, F empieza en 0 y Nf obtendra su valor al llegar a end_of_file o Nc=:=0
 leerLaberinto(Fd,PAa,PA,F,Nf,Nc):-
-	leerFila(Fd,[],PAa2,F,0,Nc),
+	leerFila(Fd,PAa,PAa2,F,0,Nc),
 	F2 is F+1,
-	leerLaberinto(Fd,[PAa2|PAa],PA,F2,Nf,Nc).
+	leerLaberinto(Fd,PAa2,PA,F2,Nf,Nc).
 
 leerLaberinto(_,PAa,PA,F,Nf,Nc):-
 	write('HOLA'),write(PAa),write(PA),nl,
@@ -59,14 +58,17 @@ leerFila(Fd,PAa3,PAa2,F,Ca,Nc):-
 	(C=:=32,
 	leerFila(Fd,[(F,Ca)|PAa3],PAa2,F,Ca2,Nc)
 	)
-	;
-	!,C=:= -1,!
-
+	;(C=:= -1
+	%finLaberinto(Fd,PAa,PA,F,Nf,Nc),
+	)
 	)
 	.
 
 leerFila(_,PAa3,PAa2,_,_,_):-
 	PAa2=PAa3.
 
-
+finLaberinto(_,PAa,PA,F,Nf,Nc):-
+	write('HOLA'),write(PAa),write(PA),nl,
+	Nf is F+1,
+	PA=PAa.
 

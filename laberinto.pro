@@ -42,7 +42,7 @@ leerLaberinto(Fd,PAa,PA,F,Nf,Nc):-
 	F2 is F+1,
 	leerLaberinto(Fd,PAa2,PA,F2,Nf,Nc).
 
-leerLaberinto(_,PAa,PA,F,Nf,_):-
+leerLaberinto(Fd,PAa,PA,F,Nf,_):-
 	Nf is F+1,
 	PA=PAa.
 
@@ -59,13 +59,18 @@ leerFila(Fd,PAa3,PAa2,F,Ca,Nc,C):-
 	(C=:=32,
 	asserta(punto(F,Ca)),
 	get_code(Fd,C1),
-	leerFila(Fd,[punto(Ca,F)|PAa3],PAa2,F,Ca2,Nc,C1)
+	leerFila(Fd,[punto(F,Ca)|PAa3],PAa2,F,Ca2,Nc,C1)
 	)
 	).
 
-leerFila(_,PAa3,PAa2,_,_,_,C):-
+leerFila(Fd,PAa3,PAa2,_,_,_,C):-
 	C > 0,
-	PAa2=PAa3.
+	PAa2=PAa3,!.
+
+resolver(PuntosAbiertos,F,C,Solucion):- 
+	leer(PuntosAbiertos,F,C),
+	write(PuntosAbiertos),!,
+	bfs(Finales,PuntosAbiertos,Solucion).
 
 %punto(0,0). punto(1,0). punto(1,1).
 %punto(1,2). punto(1,3). punto(1,4).

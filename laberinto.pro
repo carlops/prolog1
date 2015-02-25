@@ -5,9 +5,9 @@ leer(PA,Nfil,Ncol):-
 	read(Archivo),
 	open(Archivo,read,Fd),
 	readNum(Fd,Ncol,[]),	
-	leerLaberinto(Fd,[],Pa,0,Nf,Ncol),
+	leerLaberinto(Fd,[],PA,0,Nf,Ncol),
 	Nfil is Nf-1,
-	alReves(PA,Pa),
+	%alReves(PA,Pa),
 	close(Fd).
       
 readNum(Fd,N,Y):-  
@@ -69,16 +69,25 @@ leerFila(Fd,PAa3,PAa2,_,_,_,C):-
 
 resolver(PuntosAbiertos,F,C,Solucion):- 
 	leer(PuntosAbiertos,F,C),
-	write(PuntosAbiertos),!,
-	bfs(Finales,PuntosAbiertos,Solucion).
+	Cfinal is C-1,
+	%Finales=punto(X,Cfinal),
+	puntosFinales(Finales,Cfinal,[],0,F),
+	!,
+	bfs(Finales,[[punto(0,0)]],Solucion),
+	escribir(Solucion,PuntosAbiertos,F,C).
 
-%punto(0,0). punto(1,0). punto(1,1).
-%punto(1,2). punto(1,3). punto(1,4).
-%punto(1,5). punto(1,6). punto(2,6).
-%punto(3,6). punto(4,6). punto(5,6).
-%punto(6,6). punto(7,6). punto(8,6).
-%punto(8,7). punto(8,8). punto(9,8).
-%punto(9,9).
+puntosFinales(Finales,Colfinal,L,F,Nf):-
+	Nf=:=F,
+	Finales=L.
+
+puntosFinales(Finales,Colfinal,L,F,Nf):-
+	Sig is F+1,
+	(
+	(punto(F,Colfinal),
+	puntosFinales(Finales,Colfinal,[punto(F,Colfinal)|L],Sig,Nf) )
+	;
+	puntosFinales(Finales,Colfinal,L,Sig,Nf)
+	).
 
 /*
  * soluciones(Columna,Llegada).
@@ -122,3 +131,33 @@ extender(Problema,[punto(X,Y)|Camino],Caminos) :-
 extender(_,_,[]).
 
 final(Problema,Estado):- member(Estado,Problema).
+
+escribir(Sol,Pa,F,C):-
+	escribirAux(Sol,Pa,0,0,F,C).
+
+escribirAux(Sol,Pa,Fact,Cact,F,C):-
+	Cact=:=C,
+	Fsig is Fact+1,
+	write('\n'),
+	escribirAux(Sol,Pa,Fsig,0,F,C).
+
+escribirAux(Sol,Pa,Fact,Cact,F,C):-
+	Fact=:=F.
+
+escribirAux(Sol,Pa,Fact,Cact,F,C):-
+	member(punto(Fact,Cact),Sol),
+	write('.'),
+	Csig is Cact+1,
+	escribirAux(Sol,Pa,Fact,Csig,F,C).
+
+escribirAux(Sol,Pa,Fact,Cact,F,C):-
+	member(punto(Fact,Cact),Pa),
+	write(' '),
+	Csig is Cact+1,
+	escribirAux(Sol,Pa,Fact,Csig,F,C).
+
+escribirAux(Sol,Pa,Fact,Cact,F,C):-
+	write('#'),
+	Csig is Cact+1,
+	escribirAux(Sol,Pa,Fact,Csig,F,C).
+

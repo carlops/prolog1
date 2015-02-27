@@ -1,15 +1,35 @@
 /*
- *  CUADRADOS MAGICOS
+ *  ESTRELLAS MAGICAS
+ *	
+ *	Resuelve el problema de estrellas magicas de 8 puntas.
  *
+ *	Consiste en un predicado estrella/1, el cual espera una lista y triunfa
+ *	 si la lista corresponde a una estrella magica valida de 8 puntas.
+ *
+ *	El predicado es puro, lo que al ser consultado sin unificar el enumera
+ *	 todas las posibles estrellas magicas de 8 puntas.
  */
 
 :- public(estrella/1).
 
+/*  estrella/1
+ *	
+ *	Consiste basicamente crear una lista Dominio, que posee los numeros
+ *	 del 1 hasta el 16, y de alli ir asignando valores a las variables 
+ *	 de Lista via backtraking, utilizando el predicado 'select' ya que este
+ *	 ademas de proporsionarnos una elemento de la lista dada, nos provee
+ *	 una lista con los elementos anteriores sin el que acaba de seleccionar
+ *	 evitando asi la repeticion de valores dentro una misma estrella.
+ *
+ *	Ademas, se realizan asignaciones de 4 en 4, de variables de Lista, y se 
+ *	 procede a verificar las cuentas necesarias con dichas variables, para 
+ *	 asi ganar un poco de velocidad en encontrar asignaciones correctas, 
+ *	 en vez de darle valores a todas las variables y despues proceder a
+ *	 los calculos.
+ */
 estrella(Lista):-
 	Lista = [A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P],
 	fd_all_different(Lista), % Hace todos las variables tomen diferentes valors
-	%fd_domain(Lista,1,16),
-	%fd_labeling(Lista),  % Le da valores a las variables y aplica backtracking cambiandolas
 
 	Dominio = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
 	

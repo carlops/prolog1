@@ -1,3 +1,7 @@
+% Autores:
+% Alejandro Guevara carnet: 09-10971
+% Carlo Polisano    carnet: 09-1067
+
 /*
  *  ESTRELLAS MAGICAS
  *	

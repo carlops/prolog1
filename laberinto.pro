@@ -1,71 +1,67 @@
 :-dynamic(punto/2).
 
-leer(PA,Nfil,Ncol):-
+leer(PuntosAbiertos,Nfil,Ncol):-
 	write('Nombre Archivo: '),
 	read(Archivo),
 	open(Archivo,read,Fd),
 	readNum(Fd,Ncol,[]),	
-	leerLaberinto(Fd,[],PA,0,Nf,Ncol),
-	Nfil is Nf-1,
-	%alReves(PA,Pa),
+	leerLaberinto(Fd,[],PuntosAbiertos,0,Nfil,Ncol),
 	close(Fd).
       
-readNum(Fd,N,Y):-  
-	get_code(Fd,C), 
-	(addChar(Fd,C,Y,N)).
+readNum(Fd,N,L):-  
+	get_code(Fd,Char), 
+	(addChar(Fd,Char,L,N)).
 
-% esto solo voltea la lista.
+% Voltea la lista.
 alReves(L1,L2) :- alReves1(L1,L2,[]).
 alReves1([],L2,L2) :- !.
 alReves1([X|Xs],L2,Acc):-alReves1(Xs,L2,[X|Acc]).
 
-addChar(Fd,C,Y,N):-
-	C \== 10, % 10 parece ser el fin de linea (en ubuntu al menos)
-	C1 is C-48, % los numeros empiezan en 48
-	Y1 = [C1|Y],
-	readNum(Fd,N,Y1).
-addChar(Fd,C,Y,N):-
-	C=:=10,
-	alReves(Z,Y),
-	charToNum(Z,0,N).
+addChar(Fd,Char,L,N):-
+	Char \== 10, % 10 es el fin de linea
+	Char1 is Char-48, % los numeros empiezan en 48
+	L1 = [Char1|L],
+	readNum(Fd,N,L1).
+addChar(Fd,Char,L,N):-
+	Char=:=10, % se llego al fin de linea 
+	alReves(LNum,L), % se voltea la lista
+	charToNum(LNum,0,N). % se pasa de la lista de Char a un num 
 
 % convertir lista de chars a un num
-charToNum([C|Cs],Na,N):-
-	N1 is (Na*10)+C,
-	charToNum(Cs,N1,N).
-charToNum([],Na,N):-N=Na.
+charToNum([C|Cs],Nactual,N):-
+	Nnuevo is (Nactual*10)+C,
+	charToNum(Cs,Nnuevo,N).
+charToNum([],Nactual,N):- N=Nactual.
 
-%Nc ira disminuyendo, F empieza en 0 y Nf obtendra su valor al llegar a end_of_file o Nc=:=0
-leerLaberinto(Fd,PAa,PA,F,Nf,Nc):-
-	get_code(Fd,C),
-	leerFila(Fd,PAa,PAa2,F,0,Nc,C),
-	F2 is F+1,
-	leerLaberinto(Fd,PAa2,PA,F2,Nf,Nc).
+%Nc ira disminuyendo, F empieza en 0 y Nf obtendra su valor al llegar al final
+leerLaberinto(Fd,PAactual,PuntosAbiertos,FilaActual,Nf,Nc):-
+	get_code(Fd,Char),
+	leerFila(Fd,PAactual,PAnuevo,FilaActual,0,Nc,Char),
+	FilaSig is FilaActual+1,
+	leerLaberinto(Fd,PAnuevo,PuntosAbiertos,FilaSig,Nf,Nc).
+leerLaberinto(Fd,PAactual,PuntosAbiertos,FilaActual,Nf,_):-
+	Nf is FilaActual,
+	PuntosAbiertos=PAactual.
 
-leerLaberinto(Fd,PAa,PA,F,Nf,_):-
-	Nf is F+1,
-	PA=PAa.
-
-leerFila(Fd,PAa3,PAa2,F,Ca,Nc,C):-
-	C > 0,
-	Ca2 is Ca +1,
-	Ca<Nc,
+leerFila(Fd,PAactual,PA,F,ColActual,Nc,Char):-
+	Char > 0,
+	ColSig is ColActual +1,
+	ColActual<Nc,
 	(
-	(C=:=35,
-	get_code(Fd,C1),
-	leerFila(Fd,PAa3,PAa2,F,Ca2,Nc,C1)
+	(Char=:=35,
+	get_code(Fd,CharNuevo),
+	leerFila(Fd,PAactual,PA,F,ColSig,Nc,CharNuevo)
 	)
 	;
-	(C=:=32,
-	asserta(punto(F,Ca)),
-	get_code(Fd,C1),
-	leerFila(Fd,[punto(F,Ca)|PAa3],PAa2,F,Ca2,Nc,C1)
+	(Char=:=32,
+	asserta(punto(F,ColActual)),
+	get_code(Fd,CharNuevo),
+	leerFila(Fd,[punto(F,ColActual)|PAactual],PA,F,ColSig,Nc,CharNuevo)
 	)
 	).
-
-leerFila(Fd,PAa3,PAa2,_,_,_,C):-
-	C > 0,
-	PAa2=PAa3,!.
+leerFila(Fd,PAactual,PA,_,_,_,Char):-
+	Char > 0,
+	PA=PAactual,!.
 
 resolver(PuntosAbiertos,F,C,Solucion):- 
 	leer(PuntosAbiertos,F,C),
